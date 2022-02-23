@@ -1,9 +1,9 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:pomodoro_app/data/data.dart';
 
 import '../models/model.dart';
+import '../services/dbservice.dart';
 import '../widgets/action_button.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -28,6 +28,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   var pomodoroDataList = [];
+  DatabaseService databaseService = DatabaseService();
   @override
   void initState() {
     _readSettings();
@@ -35,7 +36,7 @@ class _SettingsState extends State<Settings> {
   }
 
   _readSettings() {
-    pomodoroDataList = pomodoroData;
+    pomodoroDataList = databaseService.getAllPomodoroType().toList();
   }
 
   @override
@@ -68,6 +69,8 @@ class _SettingsState extends State<Settings> {
   _savePomodoro(
       PomodoroType pomodoroType, String savetypeLabel, int timeInMinutes) {
     // print("${pomodoroType.typeLabel} ${pomodoroType.timeInMinutes.toString()}");
+    databaseService.savePomodoroType(
+        pomodoroType, savetypeLabel, timeInMinutes);
   }
 
   Widget _listTile(PomodoroType pomodoroType) {

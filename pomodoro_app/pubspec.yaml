@@ -32,6 +32,7 @@ dependencies:
   flutter:
     sdk: flutter
   ndialog: ^4.1.1
+  realm: ^0.2.0+alpha
 
 dev_dependencies:
   flutter_lints: ^1.0.0

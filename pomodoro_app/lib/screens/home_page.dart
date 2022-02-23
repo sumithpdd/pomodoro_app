@@ -3,9 +3,10 @@
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:ndialog/ndialog.dart';
-import '../data/data.dart';
 import '../helpers/app_constants.dart';
 import '../models/model.dart';
+import '../models/user_data.dart';
+import '../services/dbservice.dart';
 import '../widgets/action_button.dart';
 import '../widgets/countdown_timer.dart';
 import '../widgets/custom_button_bar.dart';
@@ -24,18 +25,20 @@ class _HomePageState extends State<HomePage> {
   final LabelCountDownTimerController _labelClockController =
       LabelCountDownTimerController();
 
+  Appuser appuser = Appuser(); // Conditional flag
+
   var _durationInSecond = 0;
 
-  List<PomodoroType> _pomodoroData = [];
-  PomodoroType? selectedPomodoro;
+  DatabaseService databaseService = DatabaseService();
+  List<PomodoroType> pomodoroData = [];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    _pomodoroData = pomodoroData;
-    selectedPomodoro = _pomodoroData[1];
-    _durationInSecond = selectedPomodoro!.timeInMinutes! * 60;
+    databaseService.seedData();
+    pomodoroData = databaseService.getAllPomodoroType().toList();
+    appuser.selectedPomodoro = pomodoroData[1];
+    _durationInSecond = appuser.selectedPomodoro!.timeInMinutes! * 60;
   }
 
   void goToSettings(BuildContext context) {
@@ -55,6 +58,7 @@ class _HomePageState extends State<HomePage> {
         title: Text("Timer Completed"),
         content: Text("Time to break."),
       ).show(context);
+      databaseService.saveUserRunHistory(appuser.selectedPomodoro!);
     }
 
     CountDownTimer _countDownTimer = CountDownTimer(
@@ -113,7 +117,7 @@ class _HomePageState extends State<HomePage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: CustomButtonBar(
-                  pomodoroData: _pomodoroData,
+                  pomodoroData: pomodoroData,
                   callback: (pomodorotype) {
                     _setSelectedPomodoro(pomodorotype);
                   }),
@@ -201,9 +205,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _setSelectedPomodoro(PomodoroType pomodorotype) {
-    selectedPomodoro = pomodorotype;
+    appuser.selectedPomodoro = pomodorotype;
     setState(() {
-      _durationInSecond = selectedPomodoro!.timeInMinutes! * 60;
+      _durationInSecond = appuser.selectedPomodoro!.timeInMinutes! * 60;
       _clockController.restart(duration: _durationInSecond);
       _labelClockController.restart(duration: _durationInSecond);
     });
