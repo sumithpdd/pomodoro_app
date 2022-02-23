@@ -1,8 +1,11 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
+import 'package:ndialog/ndialog.dart';
 import '../helpers/app_constants.dart';
 import '../widgets/action_button.dart';
+import '../widgets/countdown_timer.dart';
 import '../widgets/label_countdown_timer.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,6 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final CountDownController _clockController = CountDownController();
   final LabelCountDownTimerController _labelClockController =
       LabelCountDownTimerController();
 
@@ -20,8 +24,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+
     _durationInSecond = 10 * 60;
   }
 
@@ -31,13 +35,43 @@ class _HomePageState extends State<HomePage> {
     final double height = MediaQuery.of(context).size.height / 4;
     final double width = MediaQuery.of(context).size.width / 4;
 
+    void _timerCompleted() {
+      NDialog(
+        dialogStyle: DialogStyle(titleDivider: true),
+        title: Text("Timer Completed"),
+        content: Text("Time to break."),
+      ).show(context);
+    }
+
+    CountDownTimer _countDownTimer = CountDownTimer(
+        duration: _durationInSecond,
+        fillColor: Colors.tealAccent,
+        onComplete: () => _timerCompleted());
+
+    CircularCountDownTimer clock = CircularCountDownTimer(
+      controller: _clockController,
+      isReverseAnimation: true,
+      ringColor: kBackgroundColor,
+      height: height,
+      width: width,
+      strokeWidth: 25.0,
+      autoStart: false,
+      duration: _countDownTimer.duration,
+      isReverse: true,
+      textStyle: TextStyle(color: kSecondaryColor),
+      fillColor: _countDownTimer.fillColor,
+      backgroundColor: kbuttonBackgoundColor,
+      strokeCap: StrokeCap.round,
+      onComplete: _countDownTimer.onComplete,
+    );
+
     LabelCountdownTimer labelClock = LabelCountdownTimer(
       controller: _labelClockController,
-      duration: _durationInSecond,
+      duration: _countDownTimer.duration,
       autoStart: false,
       isReverse: true,
       textStyle: kBigLableTextStyle,
-      onComplete: () {},
+      onComplete: _countDownTimer.onComplete,
     );
 
     return Scaffold(
@@ -60,6 +94,12 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(10.0),
         child: Column(
           children: <Widget>[
+            Center(
+              child: clock,
+            ),
+            SizedBox(
+              width: 10,
+            ),
             //bottom Panel
             Padding(
               padding: const EdgeInsets.all(10.0),
@@ -87,6 +127,7 @@ class _HomePageState extends State<HomePage> {
                       ActionButton(
                           title: "Start",
                           onPressed: () {
+                            _clockController.start();
                             _labelClockController.start();
                           }),
                       SizedBox(
@@ -95,6 +136,7 @@ class _HomePageState extends State<HomePage> {
                       ActionButton(
                           title: "Pause",
                           onPressed: () {
+                            _clockController.pause();
                             _labelClockController.pause();
                           }),
                       SizedBox(
@@ -103,6 +145,7 @@ class _HomePageState extends State<HomePage> {
                       ActionButton(
                           title: "Resume",
                           onPressed: () {
+                            _clockController.resume();
                             _labelClockController.resume();
                           }),
                       SizedBox(
@@ -111,6 +154,8 @@ class _HomePageState extends State<HomePage> {
                       ActionButton(
                           title: "Restart",
                           onPressed: () {
+                            _clockController.restart(
+                                duration: _durationInSecond);
                             _labelClockController.restart(
                                 duration: _durationInSecond);
                           }),
