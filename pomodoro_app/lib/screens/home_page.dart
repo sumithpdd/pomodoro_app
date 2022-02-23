@@ -3,9 +3,12 @@
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:ndialog/ndialog.dart';
+import '../data/data.dart';
 import '../helpers/app_constants.dart';
+import '../models/model.dart';
 import '../widgets/action_button.dart';
 import '../widgets/countdown_timer.dart';
+import '../widgets/custom_button_bar.dart';
 import '../widgets/label_countdown_timer.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,11 +25,16 @@ class _HomePageState extends State<HomePage> {
 
   var _durationInSecond = 0;
 
+  List<PomodoroType> _pomodoroData = [];
+  PomodoroType? selectedPomodoro;
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
 
-    _durationInSecond = 10 * 60;
+    _pomodoroData = pomodoroData;
+    selectedPomodoro = _pomodoroData[1];
+    _durationInSecond = selectedPomodoro!.timeInMinutes! * 60;
   }
 
   @override
@@ -94,6 +102,17 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(10.0),
         child: Column(
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CustomButtonBar(
+                  pomodoroData: _pomodoroData,
+                  callback: (pomodorotype) {
+                    _setSelectedPomodoro(pomodorotype);
+                  }),
+            ),
+            SizedBox(
+              width: 10,
+            ),
             Center(
               child: clock,
             ),
@@ -171,5 +190,14 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void _setSelectedPomodoro(PomodoroType pomodorotype) {
+    selectedPomodoro = pomodorotype;
+    setState(() {
+      _durationInSecond = selectedPomodoro!.timeInMinutes! * 60;
+      _clockController.restart(duration: _durationInSecond);
+      _labelClockController.restart(duration: _durationInSecond);
+    });
   }
 }
