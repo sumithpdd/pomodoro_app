@@ -10,6 +10,7 @@ import '../widgets/action_button.dart';
 import '../widgets/countdown_timer.dart';
 import '../widgets/custom_button_bar.dart';
 import '../widgets/label_countdown_timer.dart';
+import 'settings_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -35,6 +36,11 @@ class _HomePageState extends State<HomePage> {
     _pomodoroData = pomodoroData;
     selectedPomodoro = _pomodoroData[1];
     _durationInSecond = selectedPomodoro!.timeInMinutes! * 60;
+  }
+
+  void goToSettings(BuildContext context) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => SettingsScreen()));
   }
 
   @override
@@ -93,7 +99,9 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              goToSettings(context);
+            },
             icon: Icon(Icons.settings),
           ),
         ],
